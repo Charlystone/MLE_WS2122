@@ -5,7 +5,7 @@ import random
 # capacity in liter
 capacity = 100
 
-c = 0.01
+c = 0.001
 
 r = 0.4  # crossover part
 
@@ -13,7 +13,7 @@ m = 30
 
 hypothesis_len = 100
 
-fitness_threshold = 0.00000000000001
+fitness_threshold = 0.9
 
 
 # List of random float numbers with size 100
@@ -40,7 +40,7 @@ def get_population(population_size):
     while j <= population_size - 1:
         hypothesis = np.random.random((1, hypothesis_len)).tolist()[0]
         for idx in range(hypothesis_len):
-            if hypothesis[idx] <= 0.182:  # p(1) = 0.182
+            if hypothesis[idx] <= 0.01:  # p(1) = 0.182
                 hypothesis[idx] = 1
             else:
                 hypothesis[idx] = 0
@@ -51,7 +51,11 @@ def get_population(population_size):
     return population
 
 
-population = get_population(10)
+#population = get_population(10)
+
+#population = np.zeros((10, 100), dtype=int)
+
+population = np.random.randint(2, size=(10, 100))
 
 p = len(population)
 
@@ -59,8 +63,8 @@ population_s = []
 
 
 def fitness(hypothesis):
-    volume = get_volume_regarding_hypothesis(hypothesis)
-    return e ** (-c * ((100 - volume) ** 2))
+    volume_of_hypothesis = get_volume_regarding_hypothesis(hypothesis)
+    return e ** (-c * ((100 - volume_of_hypothesis) ** 2))
 
 
 def pr(hypothesis):
@@ -120,20 +124,24 @@ def get_max_fitness():
     fitness_list = []
     for hypothesis in population:
         fitness_list.append(fitness(hypothesis))
-    return min(fitness_list)
+    max_index = fitness_list.index(max(fitness_list))
+    print(get_volume_regarding_hypothesis(population[max_index]))
+    return max(fitness_list)
 
 
 max_fitness = get_max_fitness()
 
 count = 0
 
-while get_max_fitness() > fitness_threshold:
+while max_fitness < fitness_threshold:
     selection()
-    print(count)
+    print('count: ', count, 'max_fitness: ', max_fitness, 'volume: ')
     crossover()
     mutation()
     update()
     max_fitness = get_max_fitness()
     count += 1
+    if count == 50:
+        break
 
-print(max_fitness)
+print('max fitness: ', max_fitness)

@@ -120,18 +120,20 @@ def get_max_fitness():
     fitness_list = []
     for hypothesis in population:
         fitness_list.append(fitness(hypothesis))
-
     return min(fitness_list)
 
 
 max_fitness = get_max_fitness()
 
+count = 0
 
 while get_max_fitness() > fitness_threshold:
     selection()
+    print(count)
     crossover()
     mutation()
     update()
     max_fitness = get_max_fitness()
+    count += 1
 
 print(max_fitness)

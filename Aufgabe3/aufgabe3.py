@@ -11,7 +11,7 @@ r = 0.4  # crossover part
 
 m = 30
 
-genome_size = 100
+hypothesis_len = 100
 
 fitness_threshold = 0.00001
 
@@ -19,33 +19,33 @@ fitness_threshold = 0.00001
 # List of random float numbers with size 100
 def get_list_of_random_volumes(list_size, max_volume):
     volumes = np.random.random(list_size)
-    for i in range(list_size):
-        volumes[i] = round(volumes[i], 3)
-        volumes[i] = volumes[i] * (max_volume - 1) + 1
+    for idx in range(list_size):
+        volumes[idx] = round(volumes[idx], 3)
+        volumes[idx] = volumes[idx] * (max_volume - 1) + 1
     return volumes
 
 
 volume_list = get_list_of_random_volumes(100, 10)
 
 
-def get_volume_regarding_genome(genome):
-    volume_arr = volume_list * genome
+def get_volume_regarding_hypothesis(hypothesis):
+    volume_arr = volume_list * hypothesis
     return volume_arr.sum()
 
 
-# 10 genomes with 100 Bits, p(1) = 0.182, only genomes with volume <= 100 allowed
+# 10 hypothesiss with 100 Bits, p(1) = 0.182, only hypothesiss with volume <= 100 allowed
 def get_population(population_size):
     population = []
     j = 0
     while j <= population_size:
-        genome = np.random.random((1, genome_size)).tolist()[0]
-        for i in range(genome_size):
-            if genome[i] <= 0.182:  # p(1) = 0.182
-                genome[i] = 1
+        hypothesis = np.random.random((1, hypothesis_len)).tolist()[0]
+        for idx in range(hypothesis_len):
+            if hypothesis[idx] <= 0.182:  # p(1) = 0.182
+                hypothesis[idx] = 1
             else:
-                genome[i] = 0
-        if get_volume_regarding_genome(genome) <= 100.00:  # only genomes with volume <= 100 allowed
-            population.append(genome)
+                hypothesis[idx] = 0
+        if get_volume_regarding_hypothesis(hypothesis) <= 100.00:  # only hypothesiss with volume <= 100 allowed
+            population.append(hypothesis)
             j += 1
     population
     return population
@@ -58,15 +58,15 @@ p = len(population)
 population_s = []
 
 
-def fitness(genome):
-    volume = get_volume_regarding_genome(genome)
+def fitness(hypothesis):
+    volume = get_volume_regarding_hypothesis(hypothesis)
     return e ** (-c * ((100 - volume) ** 2))
 
 
 def pr(hypothesis):
     total_fitness = 0
-    for i in p:
-        total_fitness += fitness(population[i])
+    for idx in range(p):
+        total_fitness += fitness(population[idx])
 
     return fitness(hypothesis) / total_fitness
 
@@ -89,27 +89,27 @@ def selection():
         population_s.append(population[select_hypothesis()])
 
 
-def crossover_operator(genome1, genome2):
-    split_idx = np.random.randint(genome_size)
-    genome1[:split_idx], genome2[:split_idx] = genome2[:split_idx], genome1[:split_idx]
-    return [genome1, genome2]
+def crossover_operator(hypothesis1, hypothesis2):
+    split_idx = np.random.randint(hypothesis_len)
+    hypothesis1[:split_idx], hypothesis2[:split_idx] = hypothesis2[:split_idx], hypothesis1[:split_idx]
+    return [hypothesis1, hypothesis2]
 
 
 def crossover():
     for idx in range(int(r * p / 2)):
-        new_genome_pair = crossover_operator(population[select_hypothesis()], population[select_hypothesis()])
-        population_s.append(new_genome_pair[0]).append(new_genome_pair[1])
+        new_hypothesis_pair = crossover_operator(population[select_hypothesis()], population[select_hypothesis()])
+        population_s.append(new_hypothesis_pair[0]).append(new_hypothesis_pair[1])
 
 
 def mutation():
     for idx in range(m):
         rand_idx = np.random.randint(p)
-        rand_genome = population_s[rand_idx]
+        rand_hypothesis = population_s[rand_idx]
         rand_idx = np.random.randint(p)
-        if rand_genome[rand_idx] == 0:
-            rand_genome[rand_idx] = 1
+        if rand_hypothesis[rand_idx] == 0:
+            rand_hypothesis[rand_idx] = 1
         else:
-            rand_genome[rand_idx] = 0
+            rand_hypothesis[rand_idx] = 0
 
 
 def update():
@@ -118,8 +118,8 @@ def update():
 
 def get_max_fitness():
     fitness_list = []
-    for genome in population:
-        fitness_list.append(fitness(genome))
+    for hypothesis in population:
+        fitness_list.append(fitness(hypothesis))
 
     return min(fitness_list)
 

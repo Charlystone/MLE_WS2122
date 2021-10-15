@@ -13,7 +13,7 @@ m = 30
 
 hypothesis_len = 100
 
-fitness_threshold = 0.00001
+fitness_threshold = 0.00000000000001
 
 
 # List of random float numbers with size 100
@@ -37,7 +37,7 @@ def get_volume_regarding_hypothesis(hypothesis):
 def get_population(population_size):
     population = []
     j = 0
-    while j <= population_size:
+    while j <= population_size - 1:
         hypothesis = np.random.random((1, hypothesis_len)).tolist()[0]
         for idx in range(hypothesis_len):
             if hypothesis[idx] <= 0.182:  # p(1) = 0.182
@@ -67,18 +67,17 @@ def pr(hypothesis):
     total_fitness = 0
     for idx in range(p):
         total_fitness += fitness(population[idx])
-
     return fitness(hypothesis) / total_fitness
 
 
 def select_hypothesis():
     rand_num = np.random.random()
     total = 0
-    index = np.random.rand(p)
+    index = np.random.randint(p)
     while True:
         index += 1
         index %= p
-        total = total + pr(index)
+        total = total + pr(population[index])
         if total > rand_num:
             break
     return index
@@ -98,7 +97,8 @@ def crossover_operator(hypothesis1, hypothesis2):
 def crossover():
     for idx in range(int(r * p / 2)):
         new_hypothesis_pair = crossover_operator(population[select_hypothesis()], population[select_hypothesis()])
-        population_s.append(new_hypothesis_pair[0]).append(new_hypothesis_pair[1])
+        population_s.append(new_hypothesis_pair[0])
+        population_s.append(new_hypothesis_pair[1])
 
 
 def mutation():

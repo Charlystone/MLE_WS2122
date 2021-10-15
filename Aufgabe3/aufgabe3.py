@@ -35,20 +35,7 @@ def get_volume_regarding_hypothesis(hypothesis):
 
 # 10 hypothesiss with 100 Bits, p(1) = 0.182, only hypothesiss with volume <= 100 allowed
 def get_population(population_size):
-    population = []
-    j = 0
-    while j <= population_size - 1:
-        hypothesis = np.random.random((1, hypothesis_len)).tolist()[0]
-        for idx in range(hypothesis_len):
-            if hypothesis[idx] <= 0.182:  # p(1) = 0.182
-                hypothesis[idx] = 1
-            else:
-                hypothesis[idx] = 0
-        if get_volume_regarding_hypothesis(hypothesis) <= 100.00:  # only hypothesiss with volume <= 100 allowed
-            population.append(hypothesis)
-            j += 1
-    population
-    return population
+    return np.random.randint(2, size=(population_size, hypothesis_len))
 
 
 population = get_population(10)

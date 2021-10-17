@@ -4,62 +4,33 @@ import random
 
 # capacity in liter
 capacity = 100
-
-c = 0.001
-
-r = 0.4  # crossover part
-
-m = 30
-
+c = 0.0002
+r = 0.3  # crossover part
+m = 0.6
 hypothesis_len = 100
-
-fitness_threshold = 0.9
-
-
-# List of random float numbers with size 100
-def get_list_of_random_volumes(list_size, max_volume):
-    volumes = np.random.random(list_size)
-    for idx in range(list_size):
-        volumes[idx] = round(volumes[idx], 3)
-        volumes[idx] = volumes[idx] * (max_volume - 1) + 1
-    return volumes
+fitness_threshold = 0.99
+p = 25
+population = []
+population_s = []
+volume_list = []
 
 
-volume_list = get_list_of_random_volumes(100, 10)
+def set_volume_list():
+    global volume_list
+    volume_list = np.random.random(size=(1, 100))
+    volume_list = volume_list * 9 + 1
 
 
 def get_volume_regarding_hypothesis(hypothesis):
-    volume_arr = volume_list * hypothesis
-    return volume_arr.sum()
+    return (volume_list * hypothesis).sum()
 
 
-# 10 hypothesiss with 100 Bits, p(1) = 0.182, only hypothesiss with volume <= 100 allowed
-def get_population(population_size):
-    population = []
-    j = 0
-    while j <= population_size - 1:
-        hypothesis = np.random.random((1, hypothesis_len)).tolist()[0]
-        for idx in range(hypothesis_len):
-            if hypothesis[idx] <= 0.01:  # p(1) = 0.182
-                hypothesis[idx] = 1
-            else:
-                hypothesis[idx] = 0
-        if get_volume_regarding_hypothesis(hypothesis) <= 100.00:  # only hypothesiss with volume <= 100 allowed
-            population.append(hypothesis)
-            j += 1
-    population
-    return population
+def set_population():
+    global population
 
+    population = np.zeros((p, hypothesis_len), dtype=int)
 
-#population = get_population(10)
-
-#population = np.zeros((10, 100), dtype=int)
-
-population = np.random.randint(2, size=(10, 100))
-
-p = len(population)
-
-population_s = []
+    #population = np.random.randint(2, size=(p, hypothesis_len))
 
 
 def fitness(hypothesis):
@@ -77,19 +48,22 @@ def pr(hypothesis):
 def select_hypothesis():
     rand_num = np.random.random()
     total = 0
-    index = np.random.randint(p)
+    idx = np.random.randint(p)
     while True:
-        index += 1
-        index %= p
-        total = total + pr(population[index])
+        idx += 1
+        idx %= p
+        total = total + pr(population[idx])
         if total > rand_num:
             break
-    return index
+    return idx
 
 
 def selection():
-    for idx in range(int((1 - r) * p)):
-        population_s.append(population[select_hypothesis()])
+    amount_selection = int((1 - r) * p)
+    if amount_selection % 2 == 1:
+        amount_selection += 1
+    for idx in range(amount_selection):
+        population_s.append(population[select_hypothesis()].copy())
 
 
 def crossover_operator(hypothesis1, hypothesis2):
@@ -99,15 +73,15 @@ def crossover_operator(hypothesis1, hypothesis2):
 
 
 def crossover():
-    for idx in range(int(r * p / 2)):
+    for idx in range(round(r * p / 2)):
         new_hypothesis_pair = crossover_operator(population[select_hypothesis()], population[select_hypothesis()])
-        population_s.append(new_hypothesis_pair[0])
-        population_s.append(new_hypothesis_pair[1])
+        population_s.append(new_hypothesis_pair[0].copy())
+        population_s.append(new_hypothesis_pair[1].copy())
 
 
 def mutation():
-    for idx in range(m):
-        rand_idx = np.random.randint(p)
+    for idx in range(round(m * p)):
+        rand_idx = np.random.randint(len(population_s))
         rand_hypothesis = population_s[rand_idx]
         rand_idx = np.random.randint(p)
         if rand_hypothesis[rand_idx] == 0:
@@ -117,31 +91,40 @@ def mutation():
 
 
 def update():
-    population = population_s
+    global population
+    global population_s
+
+    population = population_s.copy()
+    population_s = []
 
 
 def get_max_fitness():
     fitness_list = []
     for hypothesis in population:
         fitness_list.append(fitness(hypothesis))
-    max_index = fitness_list.index(max(fitness_list))
-    print(get_volume_regarding_hypothesis(population[max_index]))
+    max_idx = fitness_list.index(max(fitness_list))
+    print(get_volume_regarding_hypothesis(population[max_idx]))
     return max(fitness_list)
 
 
-max_fitness = get_max_fitness()
-
 count = 0
 
+set_population()
+set_volume_list()
+
+max_fitness = get_max_fitness()
+
 while max_fitness < fitness_threshold:
+
     selection()
     print('count: ', count, 'max_fitness: ', max_fitness, 'volume: ')
     crossover()
     mutation()
     update()
-    max_fitness = get_max_fitness()
+    if get_max_fitness() > max_fitness:
+        max_fitness = get_max_fitness()
     count += 1
-    if count == 50:
+    if count > 500:
         break
 
 print('max fitness: ', max_fitness)

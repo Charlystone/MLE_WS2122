@@ -1,3 +1,7 @@
+# Charly Wallaston Mar.NR. 2011897
+# MLE WS 21/22 Aufgabe2
+
+
 import numpy as np
 from math import e
 import random
@@ -5,7 +9,7 @@ import random
 # capacity in liter
 capacity = 100
 c = 0.0002
-r = 0.3  # crossover part
+r = 0.3
 m = 0.6
 hypothesis_len = 100
 fitness_threshold = 0.99
@@ -28,9 +32,11 @@ def get_volume_regarding_hypothesis(hypothesis):
 def set_population():
     global population
 
+    # starting with volume 0
     population = np.zeros((p, hypothesis_len), dtype=int)
 
-    #population = np.random.randint(2, size=(p, hypothesis_len))
+    # starting with random volume
+    # #population = np.random.randint(2, size=(p, hypothesis_len))
 
 
 def fitness(hypothesis):

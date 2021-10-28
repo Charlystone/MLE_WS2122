@@ -1,3 +1,6 @@
+# Charly Wallaston Mar.NR. 2011897
+# MLE WS 21/22 Aufgabe2
+
 import numpy as np
 import pandas as pd
 import random
@@ -26,17 +29,20 @@ df_distances = pd.DataFrame(distances)
 
 print(df_distances)
 
-#swap tow random positions in route array
+
+# swap tow random positions in route array
 def move_one_step_at_random(route, i1, i2):
     route[i1], route[i2] = route[i2], route[i1]
     return route
 
-#undo the swap
+
+# undo the swap
 def undo_move(route, i1, i2):
     route[i1], route[i2] = route[i2], route[i1]
     return route
 
-#get distance of route out of distance df
+
+# get distance of route out of distance df
 def fitness(df, route):
     total_distance = 0
     for i in range(len(route)):
@@ -47,6 +53,7 @@ def fitness(df, route):
             nextStation = route[i + 1]
         total_distance += df[station][nextStation]
     return total_distance
+
 
 # minimize length of route
 def get_shortest_route_simulated_annealing(df, start_temp, epsilon):
@@ -70,7 +77,8 @@ def get_shortest_route_simulated_annealing(df, start_temp, epsilon):
             break
     return hypothesis
 
+
 shortest_route = get_shortest_route_simulated_annealing(df_distances, 45, 0.01)
-print('\n','\n','\n','\n','\n')
+print('\n', '\n', '\n', '\n', '\n')
 print('shortest route: ', shortest_route)
 print('shortest distance: ', fitness(df_distances, shortest_route))
